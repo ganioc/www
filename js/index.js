@@ -23,12 +23,23 @@ var ctx = null;    //canvas.getContext("2d");
 var system = new ParticleSystem();
 var idRunning = null;
 var spark = new Image();
+var spark_g = new Image();
 //spark.onload = main;
 //spark.src = '/img/spark.png';
+var start = null;
 
+function accelerationf(force){
+  return function(particle,td){
+    particle.velocity.iadd(force.muls(td));
+
+  }
+}
+
+var gravity =  accelerationf(new Vec2(0,-10));
 
 function init(){
   document.addEventListener('deviceready',onDeviceReady,false);
+  system.forces.push(gravity);
 }
 
 function onDeviceReady(){
@@ -72,7 +83,7 @@ $(document).ready(function(){
     console.log('page height:' + window.innerHeight);
     console.log('header height:' + $('#canvas-header').height());
     console.log('header height:' + $('#canvas-footer').height());
-   
+    
 
   });
 
@@ -84,6 +95,8 @@ $(document).ready(function(){
     //emit(system,ctx.canvas.width, ctx.canvas.height);
     //ctx.drawImage(spark,100,100);
     spark= new Image();
+    spark_g = new Image();
+    spark_g.src = 'img/spark_g.png';
     spark.src = 'img/spark.png';
     spark.onload = gameloop;
 
@@ -110,7 +123,7 @@ function resizeCanvas(){
 }
 
 function drawCanvas(){
-  ctx.fillStyle = 'rgb(0,0,0)';
+  ctx.fillStyle = 'rgba(0,0,0, 1)';
   ctx.strokeStyle = 'rgb(255,0,0)';
   //ctx.drawImage(spark, 200, 200);
 
@@ -132,33 +145,62 @@ function drawCanvas(){
 /////////////////////
 
 function emit(system, width, height){
-    var position =  new Vec2(Math.random()*width, Math.random()*height);
-    for(var i = 0; i < 100; i++) {
-        var particle = new Particle(position.copy());
-        particle.velocity.x = fuzzy(100);
-        particle.velocity.y = fuzzy(100);
-        particle.image = spark;
-        system.particles.push(particle);
+  var position =  new Vec2(Math.random()*width, Math.random()*height);
+  for(var i = 0; i < 100; i++) {
+    var particle = new Particle(position.copy());
+    var speed = fuzzy(30);
+    var direction = fuzzy(Math.PI*2);
+    particle.velocity.x = speed*Math.cos(direction);//fuzzy(50);
+    particle.velocity.y = speed*Math.sin(direction);//fuzzy(50);
+    //particle.angularVelocity = Math.PI*50;
+    if(Math.random()<0.8){
+      particle.image = spark;
     }
+    else{
+      particle.image = spark_g;
+    }
+    particle.maxAge = fuzzy(1,4);
+    system.particles.push(particle);
+  }
 }
 
 function gameloop(){
+  window.requestAnimationFrame(lowerloop);
   console.log('into gameloop');
-  emit(system, ctx.canvas.width,ctx.canvas.height);
-
-  idRunning = window.setInterval(function() {
-                // 1 in 100
-                if( isAnimationRunning === false){
-                  window.clearInterval(idRunning);
-                  console.log('out of tick loop');
-                }
-                console.log('tick');
-                if(Math.random() < 0.1){
-                    emit(system, ctx.canvas.width, ctx.canvas.height);
-                }
-                system.update(1/30);
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                renderCanvasImage(ctx, system.particles);
-              }, 1000/10); 
 }
 
+function lowerloop(timestamp){
+  if(!start){
+    start = timestamp;
+  }
+  var progress = timestamp - start;
+  start = timestamp;
+
+  if( isAnimationRunning === false){
+    console.log('out of tick loop');
+  }
+  else{
+    //console.log('tick');
+    //console.log(progress/1000000);
+    var td = progress/1000;// us to second
+    console.log(td);
+    if(Math.random() < 0.01){
+      emit(system, ctx.canvas.width, ctx.canvas.height);
+    }
+    system.update(td);
+
+    // draw background
+    ctx.fillStyle= 'rgba(0,0,0,0.2)';
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+    ctx.globalCompositeOperation = 'lighter';
+
+    // draw particles
+    renderCanvasImage(ctx, system.particles,6);
+
+    ctx.globalCompositeOperatoin = 'source-over';
+    
+    window.requestAnimationFrame(lowerloop);
+  }
+
+}
