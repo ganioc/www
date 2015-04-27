@@ -1,3 +1,9 @@
+.splash img{
+    width:100%;
+    height:100%;
+
+}
+
 
 #home{
     background-image:url(img/milu.png);
@@ -29,4 +35,5 @@
 
 #canvas-content{
     padding:0px;
+
 }

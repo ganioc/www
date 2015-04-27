@@ -49,7 +49,7 @@ Vec2.prototype = {
 
     adds: function(n) { return new Vec2(this.x+n, this.y+n); },
     iadds: function(s) { this.x+=s; this.y+=s; return this; },
- 
+
     add: function(v) { return new Vec2(this.x+v.x, this.y+v.y); },
     iadd: function(v) { this.x+=v.x; this.y+=v.y; return this;},
 
@@ -99,10 +99,6 @@ function choose(array) {
     return array[Math.floor(Math.random()*array.length)];
 }
 
-/****
- * 
- * defining Particle object
- */
 function Particle(position) {
     this.position = position;
     this.velocity = new Vec2(0, 0);
@@ -111,7 +107,7 @@ function Particle(position) {
     this.age = 0;
 }
 Particle.prototype = {
-    maxAge: 4, //seconds
+    maxAge: Infinity,
     update: function(td) {
         this.age += td;
         this.position.iadd(this.velocity.muls(td));
@@ -119,10 +115,7 @@ Particle.prototype = {
         return this.age < this.maxAge;
     }
 };
-/*****
- * Define ParticleSystem object
- * 
- */
+
 function ParticleSystem(){
     this.particles = [];
     this.forces = [];

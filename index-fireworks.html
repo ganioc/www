@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<!--
+    Copyright (c) 2012-2014 Adobe Systems Incorporated. All rights reserved.
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="msapplication-tap-highlight" content="no" />
+        <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+        <link rel="stylesheet" type="text/css" href="css/jquery.mobile-1.4.5.css" />
+        <link rel="stylesheet" type="text/css" href="css/main.css" />
+        <title>Hello World</title>
+    </head>
+    <body>
+      <div data-role='page' id='home' data-title='Home'>
+	<div data-role='header' data-position='fixed'>
+	  <h1>Home</h1>
+	  <a href='#' data-icon='plus' data-iconpos='notext' class='ui-btn-right'></a>
+	</div>
+	<div data-role='content' id='home-content'>
+	  <a href='#contact' data-role='button' data-transition='slide'>Contact Us</a>
+	  <a href='#canvas' data-role='button' data-transition='slide' id='btn-canvas'>Canvas</a>
+	  <a href='#' data-role='button' data-inline='true' >agree</a>
+	  <a href='#' data-role='button' data-inline='true' >disagree</a>
+	  <h2 id='field-ready' style='display:none'>aaa</h2>
+	  <label for='genre'>Genre:</label>
+	  <ul data-role='listview' data-inset='true' data-theme='b'>
+	    <li data-role='list-divider'>Contact Options</li>
+	    <li>
+	      <a href='#'>
+		<img src='img/milu.png' />
+		<h3>Kung fu</h3>
+		<p>I know him for a long time.</p>
+	      </a>
+	    </li>
+	    <li><a href='#'><img src='' class='ui-li-icon'>Call</a></li>
+	    <li><a href='#'><img src='' class='ui-li-icon'>Call</a></li>
+	    
+	  </ul>
+	</div>
+	<div data-role='footer' data-theme='a' data-position='fixed'>
+	  <div data-role='navbar'>
+	    <ul>
+	      <li><a href='#' data-icon='home'>Home</a></li>
+	      <li><a href='#' data-icon='star' class='ui-btn-active'>Now</a></li>
+	      <li><a href='#' data-icon='grid'>Theatre</a></li>	      
+	    </ul>
+	  </div>
+	</div>
+      </div>
+      <div data-role='page' id='contact' data-tile='Contact'>
+	<div data-role='header'>
+	  <a href='#home' data-rel='back' data-role='button' data-transition='slide'>Back</a>
+	  <h1>Contact</h1>
+	  <a href='#' data-icon='plus' data-iconpos='notext' class='ui-btn-right'></a>
+	</div>
+	<div data-role='content'>
+	  <h1>Contact info</h1>
+	  <a href='#terms' data-rel='dialog' data-role='button' data-transition='slidedown'>Terms</a>
+	  
+	</div>
+	<div data-role='footer' data-position='fixed' data-theme='a'
+	     class='segmented-control'>
+	  <div data-role='controlgroup' data-type='horizontal'>
+	    <a href='#' data-role='button' class='ui-control-active'>List</a>
+	    <a href='#' data-role='button' class='ui-control-inactive'>Day</a>	    	   <a href='#' data-role='button' class='ui-control-inactive'>Month</a>	    
+	  </div>
+	</div>
+      </div>
+      <div data-role='page' id='terms'>
+	<div data-role='header' data-position='fixed'>
+	  <h1>Terms</h1>
+	</div>
+	<div data-role='content'>
+	  <h1>这里是你要遵循的行为规范和准则。</h1>
+	  <a href='#' data-role='button' data-inline='true'
+	     data-rel='back' data-theme='a'>Agree</a>
+	</div>
+      </div>
+      
+      <div data-role='page' id='canvas' data-tile='Canvas' >
+	<div data-role='header' id='canvas-header' data-position='fixed'>
+	  <a href='#home' data-rel='back' data-role='button' data-transition='slide'>Back</a>
+	  <h1>canvas</h1>
+	  <a href='#'  data-role='button' id='fire-canvas'>Fire</a>
+	</div>
+	<div data-role='content' id='canvas-content' data-position='fixed'>
+	<canvas id='grid'></canvas>
+	</div>
+
+	<div data-role='footer' id='canvas-footer' data-position='fixed' data-theme='a'
+	     class='segmented-control'>
+	  <div data-role='controlgroup' data-type='horizontal'>
+	    <a href='#' data-role='button' class='ui-control-active'>List</a>
+	    <a href='#' data-role='button' class='ui-control-inactive'>Day</a>	    	   <a href='#' data-role='button' class='ui-control-inactive'>Month</a>	    
+	  </div>
+	</div>
+      </div>      
+      <script type="text/javascript" src="cordova.js"></script>
+      <script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+      <script type="text/javascript" src="js/jquery.mobile-1.4.5.js"></script>
+      <script type="text/javascript" src="js/particles.js"></script>
+      <script type="text/javascript" src="js/index.js"></script>
+    </body>
+</html>
