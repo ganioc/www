@@ -1,3 +1,4 @@
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -31,11 +32,17 @@ var start = null;
 function accelerationf(force){
   return function(particle,td){
     particle.velocity.iadd(force.muls(td));
+  };
+}
 
-  }
+function help(){
+    var p=2;
+    p = Math.cos();
+    Math.sin();
 }
 
 var gravity =  accelerationf(new Vec2(0,-10));
+
 
 function init(){
   document.addEventListener('deviceready',onDeviceReady,false);
@@ -47,8 +54,8 @@ function onDeviceReady(){
   console.log('deviceReady is triggered.');
   //var pElement = document.getElementById('field-ready');
   //pElement.setAttribute('style','display:block;');
-
 }
+
 
 window.onload = init;
 
@@ -126,6 +133,7 @@ function drawCanvas(){
   ctx.fillStyle = 'rgba(0,0,0, 1)';
   ctx.strokeStyle = 'rgb(255,0,0)';
   //ctx.drawImage(spark, 200, 200);
+    Math.cos(1);
 
   // ctx.fillRect(10, 10, 50, 50);
 
@@ -135,7 +143,7 @@ function drawCanvas(){
   // ctx.lineTo(ctx.canvas.width,ctx.canvas.height-0.5);
 
   // ctx.strokeRect(0.5,0.5,ctx.canvas.width-0.5,ctx.canvas.height-1);
-  
+
   
   // ctx.stroke();
 }

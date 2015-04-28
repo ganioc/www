@@ -31,23 +31,53 @@
         <title>Firework</title>
     </head>
     <body>
-
+      <!-- home -->
       <div data-role="page" id="home" data-title="Home"> 
 	<div data-role="header" data-position="fixed">
 	  <h1>Home</h1>
+          <a href='home.html#board' data-icon='plus' data-iconpos='notext' data-transition='slide' class='ui-btn-right'></a>
 	</div>
-
 	<div data-role="content" id="home-content">
 	  <h1>Hello</h1>
+          <a href='home.html#help' data-role='button' data-transition='slide'>Help</a>
+          <a href='home.html#board' data-role='button' data-transition='slide'>Board</a>
 	</div>
-	<div data-role="footer" data-position="fixed">
+	<div data-role="footer" id="home-footer" data-position="fixed">
 	  <h1>Footer</h1>
 	</div>
       </div>
+      <!-- board -->
+      <div data-role="page" id="board">
+        <div data-role="header" data-position="fixed">
+          <a href='#home' data-rel='back' data-role='button' data-transition='slide'>Back</a>          
+          <h1>Board</h1>
+        </div>
+        <div data-role="content">
+          <canvas id='board_canvas'></canvas>
+        </div>
+        <div data-role="footer" data-position="fixed">
+          <h1>footer</h1>
+        </div>
+      </div>
+      <!-- help -->
+      <div data-role="page" id="help">
+        <div data-role="header" data-position="fixed">
+          <a href='#home' data-rel='back' data-role='button' data-transition='slide'>Back</a>
+          <h1>Help</h1>
+        </div>
+        <div data-role="content">
+          <h1>help</h1>
+        </div>
+        <div data-role="footer" data-position="fixed">
+          <h1>footer</h1>
+        </div>        
+      </div>
+      <!-- End of html div -->
       <script type="text/javascript" src="cordova.js"></script>
       <script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
       <script type="text/javascript" src="js/jquery.mobile-1.4.5.js"></script>
+      <script type="text/javascript" src="js/input.js"></script>
       <script type="text/javascript" src="js/particles.js"></script>
-      <script type="text/javascript" src="js/home.js"></script>
+      <script type="text/javascript" src="js/splash.js"></script>
     </body>
 </html>

@@ -1,4 +1,5 @@
-#splash{
+/* for index.html */
+#splash, #board-content{
     padding:0px;
 }
 #splash img{
@@ -9,10 +10,8 @@
 }
 
 
-#home{
-    background-image:url(img/milu.png);
-    text-align:center;
-}
+
+
 
 .segmented-control{
     text-align:center;
@@ -31,13 +30,8 @@
     background:#DDD;
 }
 
-#grid{
-    background:black;
+#board_canvas{
+    Background:black;
     padding:0px;
     margin:0px;
-}
-
-#canvas-content{
-    padding:0px;
-
 }
