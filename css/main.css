@@ -15,8 +15,12 @@
 
 #board-content{
     background:black;
+    padding:0px;
+    display:block;
 }
+#board-canvas{
 
+}
 
 .segmented-control{
     text-align:center;

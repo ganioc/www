@@ -57,7 +57,7 @@
             };
         },
         golden_fire:function(){
-            var MAX_PARTICLES = 100000;
+            var MAX_PARTICLES = 10000;
             var NFIELDS = 5;//x,y,vx,vy,age
             var PARTICLES_LENGTH = MAX_PARTICLES * NFIELDS;
 
@@ -66,21 +66,21 @@
 
             var MAX_AGE = 5;
             var gravity = 10;
-            var drag = 0.999;
+            var drag = 1;//0.99;
             var r = 120;
             var g = 55;
             var b = 10;
-
+            var PARTICLE_NUM = 200;
             //
             function emit(x, y){
-                for(var i=0; i< 250; i++){
+                for(var i=0; i< PARTICLE_NUM; i++){
                     particles_i = (particles_i + NFIELDS)% PARTICLES_LENGTH;
                     particles[particles_i] = x;
                     particles[particles_i + 1] = y;
                     var alpha = fuzzy(Math.PI),
-                        radius = Math.random()*50,
+                        radius = Math.random()*300,
                         vx = Math.cos(alpha) * radius,
-                        vy = Math.sin(alpha) * radius,
+                        vy = Math.tan(alpha) * radius,
                         age = Math.random();
                     particles[particles_i + 2] = vx;
                     particles[particles_i + 3] = vy;
@@ -110,13 +110,16 @@
                     if( x<0||x>=ctx.canvas.width||y<0||y>=ctx.canvas.height){
                         continue;
                     }
-                    //calculate offset
-                    var offset = (x+y*ctx.canvas.width)*4;
+                    //calculate offset, 4 is rgba size
+                    var offset = (x + y*ctx.canvas.width) * 4;
 
                     // set pixel
                     data[offset] += r;
                     data[offset +1] +=g;
                     data[offset +2] +=b;
+                    // data[offset+4] += r;
+                    // data[offset +5] +=g;
+                    // data[offset +6] +=b;
                 }//end of for
 
                 ctx.putImageData(imgdata, 0, 0);
@@ -161,15 +164,20 @@
     window.onload = init;
 
     jq(document).ready(function(){
-        canvas = document.getElementById('board_canvas');
+        console.log('into document ready');
+        console.log('header height is :' + jq('#home-header').height());
+        canvas = document.getElementById('board-canvas');
         ctx = canvas.getContext('2d');
         ctx.canvas.width = window.innerWidth;
-        ctx.canvas.height = window.innerHeight - jq('#board-header').height()- jq('#board-footer').height()-2;
+
         ctx.fillStyle = 'black';
         ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
 
         jq('#board').on('pageshow',function(event){
-            console.log('board in');
+            ctx.canvas.height = window.innerHeight - jq('#board-header').outerHeight()- jq('#board-footer').outerHeight() - 4;
+            console.log('board in->');
+            console.log(jq('#board-header').height());
+            console.log(jq('#board-footer').height());
             isAnimationRunning = true;
             //start the sim here, based on SimuName
             //ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
