@@ -2,8 +2,12 @@
     var isPhoneGapReady = false;
     var durationSplash = 4000;
     var canvas, ctx;
-  var currentSimu ="";
-  var currentSimuName = "";
+    var currentSimu ="";
+    var currentSimuName = "";
+    var isAnimationRunning = false;
+    var start = false;
+    var currentGameLoop = null;
+    var system; // this is the particlesystem
     
     function hideSplash(){
         jq.mobile.changePage("#home", "fade",false,false);
@@ -15,28 +19,139 @@
         fadeIn:function(){
             window.setTimeout( hideSplash, durationSplash);
             // some homework here, when displaying splash screen
-        }
+        },
+        createGameLoop:function(simu){
+            var handler;
+            if(simu === 'golden_fire')
+            {
+                handler = splash.golden_fire();
+            }
+            else if(simu === 'water_ripple'){
+                handler = splash.water_ripple();
+            }
+            else if(simu === 'tracking_trace'){
+                handler = splash.tracking_trace();
+            }
+            else{
+                console.log('wrong func name');
+            }
+            return function(timestamp){
+                if(!start){
+                    start = timestamp;
+                }
+                var progress = timestamp -start;
+                start = timestamp;
+                if(isAnimationRunning === false){
+                    console.log('out of tick loop');
+                    ctx.fillStyle ='black';
+                    ctx.fillRect(0,0,ctx.canvas.width,ctx.canvas.height);
+                }
+                else{
+                    var td = progress/1000; // in seconds
+                    //console.log(td);
+                    //console.log('into gf');
+                    //ctx.fillStyle = 'red';
+                    handler(td);
+                    window.requestAnimationFrame(currentGameLoop);
+                }
+            };
+        },
+        golden_fire:function(){
+            var MAX_PARTICLES = 100000;
+            var NFIELDS = 5;//x,y,vx,vy,age
+            var PARTICLES_LENGTH = MAX_PARTICLES * NFIELDS;
 
+            var particles = new Float32Array(PARTICLES_LENGTH);
+            var particles_i = 0;
+
+            var MAX_AGE = 5;
+            var gravity = 10;
+            var drag = 0.999;
+            var r = 120;
+            var g = 55;
+            var b = 10;
+
+            //
+            function emit(x, y){
+                for(var i=0; i< 250; i++){
+                    particles_i = (particles_i + NFIELDS)% PARTICLES_LENGTH;
+                    particles[particles_i] = x;
+                    particles[particles_i + 1] = y;
+                    var alpha = fuzzy(Math.PI),
+                        radius = Math.random()*50,
+                        vx = Math.cos(alpha) * radius,
+                        vy = Math.sin(alpha) * radius,
+                        age = Math.random();
+                    particles[particles_i + 2] = vx;
+                    particles[particles_i + 3] = vy;
+                    particles[particles_i + 4] = age;
+                }
+            }
+            
+            return function(td){
+                //console.log(td + 'golden_fire');
+                emit(ctx.canvas.width/2, ctx.canvas.height/3);
+
+                ctx.fillStyle = 'rgba(0,0,0,0.4)';
+                ctx.fillRect(0,0, ctx.canvas.width, ctx.canvas.height);
+                var imgdata = ctx.getImageData(0,0,ctx.canvas.width, ctx.canvas.height);
+                var data = imgdata.data;
+
+                for(var i=0; i< PARTICLES_LENGTH;i+= NFIELDS){
+                    if( (particles[i+4] += td) > MAX_AGE){
+                        continue;
+                    }
+                    // Math.ceil
+                    var x = ~~(particles[i]= (particles[i]+
+                                              (particles[i+2]*=drag)*td));
+                    var y = ~~(particles[i+1] = (particles[i+1]+
+                                                 (particles[i+3]=(particles[i+3] + gravity*td)*drag)*td));
+                    // check bounds
+                    if( x<0||x>=ctx.canvas.width||y<0||y>=ctx.canvas.height){
+                        continue;
+                    }
+                    //calculate offset
+                    var offset = (x+y*ctx.canvas.width)*4;
+
+                    // set pixel
+                    data[offset] += r;
+                    data[offset +1] +=g;
+                    data[offset +2] +=b;
+                }//end of for
+
+                ctx.putImageData(imgdata, 0, 0);
+            };                
+        },
+        
+        water_ripple:function(){
+            return function(td){
+                console.log(td + 'water_ripple');
+            };
+        },
+        tracking_trace:function(){
+            return function(td){
+                console.log(td + 'tracking_trace');
+            };
+        }
     };
 
     // configuration:
     function init(){
-      document.addEventListener('deviceready',onDeviceReady,false);
-      
-      splash.fadeIn();
+        document.addEventListener('deviceready',onDeviceReady,false);
+        splash.fadeIn();
     }
     function onDeviceReady(){
         isPhoneGapReady = true;
         console.log('deviceReady is triggered');
 
         // prepare board canvas init
-    //     canvas = document.getElementById('board_canvas');
-    //     ctx = canvas.getContext('2d');
-    //     ctx.canvas.width = window.innerWidth;
-    //     ctx.canvas.height = window.innerHeight - $('#baord-header').height();
-    //     ctx.fillStyle = 'black';
-    //     ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
-//
+        //     canvas = document.getElementById('board_canvas');
+        //     ctx = canvas.getContext('2d');
+        //     ctx.canvas.width = window.innerWidth;
+        //     ctx.canvas.height = window.innerHeight - $('#baord-header').height();
+        //     ctx.fillStyle = 'black';
+        //     ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
+        //
     }
     
 
@@ -45,35 +160,54 @@
 
     window.onload = init;
 
-  jq(document).ready(function(){
+    jq(document).ready(function(){
         canvas = document.getElementById('board_canvas');
         ctx = canvas.getContext('2d');
         ctx.canvas.width = window.innerWidth;
-        ctx.canvas.height = window.innerHeight - jq('#baord-header').height();
+        ctx.canvas.height = window.innerHeight - jq('#board-header').height()- jq('#board-footer').height()-2;
         ctx.fillStyle = 'black';
         ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
 
-    jq('#board').on('pageshow',function(event){
-      console.log('board in');
-      //event.preventDefault();
-      jq('#board-header h1').html(currentSimuName);
+        jq('#board').on('pageshow',function(event){
+            console.log('board in');
+            isAnimationRunning = true;
+            //start the sim here, based on SimuName
+            //ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
+            start = false;
+            console.log(currentSimu);
+            currentGameLoop = splash.createGameLoop(currentSimu);
+            window.requestAnimationFrame(currentGameLoop);
 
-    }).on('pagehide',function(event){
-      console.log('board out');
-      //event.preventDefault();
+        }).on('pagehide',function(event){
+            console.log('board out');
+            //event.preventDefault();
+            //end the sim, or pause the sim, for simplicity
+            // I will end the sim
+            currentGameLoop = null;
+            isAnimationRunning = false;
+
+        });
+
+        // or I insert a button press callback
+        
+        
+
+        jq('#simu-list .simu-item').click(
+            function(event){
+                console.log(jq(this).children('.note').html());
+                currentSimu = jq(this).children('.note').html().replace(/\s+/g,'');
+                currentSimuName = jq(this).children('h4').html();
+                console.log(currentSimuName);
+                //event.preventDefault();
+
+                // change board title according to simu name
+                jq('#board-header h1').html(currentSimuName);
+
+                
+            }
+        );
+
     });
 
-    jq('#simu-list .simu-item').click(
-      function(event){
-        console.log(jq(this).children('.note').html());
-        currentSimu = jq(this).children('.note').html();
-        currentSimuName = jq(this).children('h4').html();
-        console.log(currentSimuName);
-        //event.preventDefault();
-      }
-    );
-
-  });
-
 })();
-  
+

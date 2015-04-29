@@ -13,6 +13,9 @@
     display:none;
 }
 
+#board-content{
+    background:black;
+}
 
 
 .segmented-control{
