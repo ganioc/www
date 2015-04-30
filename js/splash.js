@@ -57,20 +57,45 @@
             };
         },
         golden_fire:function(){
-            var MAX_PARTICLES = 10000;
+            var MAX_PARTICLES = 100000;
             var NFIELDS = 5;//x,y,vx,vy,age
             var PARTICLES_LENGTH = MAX_PARTICLES * NFIELDS;
 
             var particles = new Float32Array(PARTICLES_LENGTH);
             var particles_i = 0;
 
-            var MAX_AGE = 5;
-            var gravity = 10;
-            var drag = 1;//0.99;
+            var MAX_AGE = 6;
+            var gravity = 20;
+            var drag = 0.99;
             var r = 120;
             var g = 55;
             var b = 10;
-            var PARTICLE_NUM = 200;
+            var PARTICLE_NUM = 250;
+            var emitX = 0, emitY = 0;
+            emitX = ctx.canvas.width/2;
+            emitY = ctx.canvas.height/3;
+
+            function getXy(event){
+                emitX = event.clientX;
+                emitY = event.clientY - jq('#board-canvas').offset().top;
+                console.log(emitX + ' ' + emitY);
+            }
+            //
+            jq('#board-canvas').click(function(event){
+                event.preventDefault();
+                console.log('board-canvas clicked');
+                getXy(event);
+                //event.preventDefault();
+            });
+            jq('#board-canvas').on('touchstart',function(event){
+                event.preventDefault();
+                console.log('board-canvas touched');
+                console.log(event);
+                console.log(event.originalEvent.changedTouches[0]);
+                getXy(event.originalEvent.changedTouches[0]);
+                //event.preventDefault();
+            });
+            
             //
             function emit(x, y){
                 for(var i=0; i< PARTICLE_NUM; i++){
@@ -78,7 +103,7 @@
                     particles[particles_i] = x;
                     particles[particles_i + 1] = y;
                     var alpha = fuzzy(Math.PI),
-                        radius = Math.random()*300,
+                        radius = Math.random()*150,
                         vx = Math.cos(alpha) * radius,
                         vy = Math.tan(alpha) * radius,
                         age = Math.random();
@@ -90,7 +115,7 @@
             
             return function(td){
                 //console.log(td + 'golden_fire');
-                emit(ctx.canvas.width/2, ctx.canvas.height/3);
+                emit(emitX,emitY);
 
                 ctx.fillStyle = 'rgba(0,0,0,0.4)';
                 ctx.fillRect(0,0, ctx.canvas.width, ctx.canvas.height);
