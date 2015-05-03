@@ -26,8 +26,8 @@
             {
                 handler = splash.golden_fire();
             }
-            else if(simu === 'water_ripple'){
-                handler = splash.water_ripple();
+            else if(simu === 'rainbow_band'){
+                handler = splash.rainbow_band();
             }
             else if(simu === 'tracking_trace'){
                 handler = splash.tracking_trace();
@@ -95,6 +95,8 @@
                 getXy(event.originalEvent.changedTouches[0]);
                 //event.preventDefault();
             });
+
+            jq('#board-setting').attr('href','#golden-firework-setting');
             
             //
             function emit(x, y){
@@ -103,7 +105,7 @@
                     particles[particles_i] = x;
                     particles[particles_i + 1] = y;
                     var alpha = fuzzy(Math.PI),
-                        radius = Math.random()*150,
+                        radius = Math.random()*500,
                         vx = Math.cos(alpha) * radius,
                         vy = Math.tan(alpha) * radius,
                         age = Math.random();
@@ -142,23 +144,119 @@
                     data[offset] += r;
                     data[offset +1] +=g;
                     data[offset +2] +=b;
-                    // data[offset+4] += r;
-                    // data[offset +5] +=g;
-                    // data[offset +6] +=b;
-                }//end of for
+                 }//end of for
 
                 ctx.putImageData(imgdata, 0, 0);
             };                
         },
         
-        water_ripple:function(){
+        rainbow_band:function(){
+
+
+            var NFIELDS = 5; // x,y, vx, vy,age,
+            var angle = 0;
+            var NUM = 10;
+
+            var MAX_PARTICLES = 12;
+            var HEIGHT = ~~(ctx.canvas.height/ MAX_PARTICLES);
+            var SPEED = ~~(HEIGHT/NUM);
+            HEIGHT = SPEED * NUM;
+            var PARTICLES_LENGTH = (MAX_PARTICLES + 1+  ~~(-MAX_PARTICLES + ctx.canvas.height/HEIGHT)) * NFIELDS;
+
+            var particles = new Float32Array(PARTICLES_LENGTH);
+            var particles_i = 0 ;
+            var bEmit = true;
+            
+            jq('#board-setting').attr('href','#water-ripple-setting');
+
+            // to generate the color in emit
+            var createColor = function(){
+                var tick = 0;
+                var COLOR_SPACING = 5;
+                var COLOR_STEP = 0xff/COLOR_SPACING;
+                
+                var color_list = new Array();
+                var color_list_index=0;
+
+                for(var i =0; i< COLOR_SPACING;i ++){
+                    for( var j=0; j< COLOR_SPACING; j++){
+                        for( var k=0; k< COLOR_SPACING; k++){
+                            var r = i*COLOR_STEP;
+                            var g = j*COLOR_STEP;
+                            var b = k*COLOR_STEP;
+                            color_list[color_list_index] = r<<16|b<<8|g;
+                            color_list_index += 1;
+                        }
+                    }
+                }
+                color_list_index = ~~(Math.random()*color_list.length) -1;
+                
+                return function (){
+                    tick += 1;
+                    if( true ){
+                        color_list_index += 1;
+                        if(color_list_index >= color_list.length){
+                            color_list_index = 0;
+                        }
+                    }
+                    return color_list[color_list_index];
+                };
+            };// endof createColor
+
+            var color = createColor();
+            
+            function emit(td){
+                //console.log(angle.toString(16));
+                particles[particles_i] = 50;     //x
+                particles[particles_i + 1] = -HEIGHT;   //y
+                particles[particles_i + 2] = 0;   //vx
+                particles[particles_i + 3] = SPEED;  //vy
+                particles[particles_i + 4] = color(); //
+                
+                particles_i = (particles_i + NFIELDS)%PARTICLES_LENGTH;                    
+            }
+
             return function(td){
-                console.log(td + 'water_ripple');
+                if( bEmit === true){
+                    emit(td);
+                    bEmit= false;
+                }
+                //emit(td);
+                ctx.fillStyle = 'rgba(0,0,0,1)';
+                ctx.fillRect(0,0,ctx.canvas.width,ctx.canvas.height);
+                
+                for(var i=0;i < PARTICLES_LENGTH;i+= NFIELDS){
+                    var x = particles[i];
+                    var y = particles[i+1];
+
+                    var speed = particles[i+3];
+                    var color = particles[i+4];
+                    
+                    if( y === SPEED){
+                        bEmit = true;
+                    }
+
+                    if(particles[i+3]> 0){
+                        var str = color.toString(16);
+                        if(str.length === 2){
+                            str = '0000' + str;
+                        }
+                        else if(str.length === 4){
+                            str = '00' + str;
+                        }
+                            
+                        ctx.fillStyle = '#' + str; //
+                        ctx.fillRect(x, y, ctx.canvas.width - x*2, HEIGHT);
+                        
+                        particles[i+1] = particles[i+1] + speed;
+                    }
+                }
+
             };
         },
         tracking_trace:function(){
             return function(td){
-                console.log(td + 'tracking_trace');
+                return 0;
             };
         }
     };
@@ -199,10 +297,10 @@
         ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
 
         jq('#board').on('pageshow',function(event){
-            ctx.canvas.height = window.innerHeight - jq('#board-header').outerHeight()- jq('#board-footer').outerHeight() - 4;
+            ctx.canvas.height = window.innerHeight - jq('#board-header').outerHeight()- jq('#board-footer').outerHeight() ;
             console.log('board in->');
-            console.log(jq('#board-header').height());
-            console.log(jq('#board-footer').height());
+            // console.log(jq('#board-header').height());
+            // console.log(jq('#board-footer').height());
             isAnimationRunning = true;
             //start the sim here, based on SimuName
             //ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
