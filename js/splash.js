@@ -152,14 +152,13 @@
         
         rainbow_band:function(){
             var NFIELDS = 5; // x,y, vx, vy,age,
-            //var angle = 0;
-            var SPEED_NUM = 10; // to decide the speed
 
-            var MAX_PARTICLES = 10; // to decide the band number
+            var MAX_PARTICLES = 11; // to decide the band number
             
             var HEIGHT = Math.floor(ctx.canvas.height/ MAX_PARTICLES);
-            var SPEED = Math.floor(HEIGHT/SPEED_NUM);
-            HEIGHT = SPEED * SPEED_NUM;
+            HEIGHT = (HEIGHT%2 === 0)?HEIGHT:(HEIGHT -1);
+            console.log('HEIGHT is:' + HEIGHT);
+            var SPEED = 2; //Math.floor(HEIGHT/SPEED_NUM);
             var PARTICLES_LENGTH = (MAX_PARTICLES + 1) * NFIELDS;
 
             var particles = new Float32Array(PARTICLES_LENGTH);
@@ -167,6 +166,62 @@
             var bEmit = true;
             
             jq('#board-setting').attr('href','#water-ripple-setting');
+
+            var Monkey = function(){
+                var x = ctx.canvas.width/2,y =0;
+                var width = 10;
+                var height = 20;
+                var size = 1;
+                var color = 'white';
+                var speed = 300;
+                var direction = 'down';
+
+                function jump(){
+                    direction = 'down';
+                    speed = -200;
+
+                };
+                function drop(){
+                    direction = 'up';
+                    speed = 300;
+
+                };
+                
+                return {
+                    update:function(td){
+                        y = y+ speed * td;
+
+                        if(direction === 'up'){
+
+                            size =(size < 2)?(size + 0.01):size;
+
+                        }
+                        else if(direction ==='down'){
+                            size = ( size > 0.2)?(size - 0.01):size;
+                        }
+
+                        if(y > ctx.canvas.height){
+                            y = 0;
+                        }
+                        else if( y > ctx.canvas.height/2){
+                            if(Math.random()> 0.5){
+                                jump();
+                            }
+                        }
+                        else if( y < -10){
+                            drop();
+
+                        }
+                    },
+                    draw:function(){
+                        ctx.fillStyle = color;
+                        ctx.fillRect(x,y,width*size,height*size);
+                    }
+
+                };
+            };
+
+            var monkey1 = new Monkey();
 
             // to generate the color in emit
             var createColor = function(){
@@ -228,15 +283,16 @@
                     var x = particles[i];
                     var y = particles[i+1];
 
-                    var speed = particles[i+3]*(td/0.017);
+                    var speed = SPEED;
                     //console.log('speed is:' + speed.toString());
                     //console.log(td);
                     
                     var color = particles[i+4];
                     
-                    if( y >0 && y < SPEED){
+                    if( y === SPEED){
                         bEmit = true;
                     }
+                    //console.log('y is:' + y);
 
                     if(particles[i+3]> 0){
                         var str = color.toString(16);
@@ -252,7 +308,9 @@
                         
                         particles[i+1] = particles[i+1] + speed;
                     }
-                }
+                }// end of for
+                monkey1.update(td);
+                monkey1.draw();
 
             };
         },
