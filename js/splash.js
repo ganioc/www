@@ -151,17 +151,16 @@
         },
         
         rainbow_band:function(){
-
-
             var NFIELDS = 5; // x,y, vx, vy,age,
-            var angle = 0;
-            var NUM = 10;
+            //var angle = 0;
+            var SPEED_NUM = 10; // to decide the speed
 
-            var MAX_PARTICLES = 12;
-            var HEIGHT = ~~(ctx.canvas.height/ MAX_PARTICLES);
-            var SPEED = ~~(HEIGHT/NUM);
-            HEIGHT = SPEED * NUM;
-            var PARTICLES_LENGTH = (MAX_PARTICLES + 1+  ~~(-MAX_PARTICLES + ctx.canvas.height/HEIGHT)) * NFIELDS;
+            var MAX_PARTICLES = 10; // to decide the band number
+            
+            var HEIGHT = Math.floor(ctx.canvas.height/ MAX_PARTICLES);
+            var SPEED = Math.floor(HEIGHT/SPEED_NUM);
+            HEIGHT = SPEED * SPEED_NUM;
+            var PARTICLES_LENGTH = (MAX_PARTICLES + 1) * NFIELDS;
 
             var particles = new Float32Array(PARTICLES_LENGTH);
             var particles_i = 0 ;
@@ -229,10 +228,13 @@
                     var x = particles[i];
                     var y = particles[i+1];
 
-                    var speed = particles[i+3];
+                    var speed = particles[i+3]*(td/0.017);
+                    //console.log('speed is:' + speed.toString());
+                    //console.log(td);
+                    
                     var color = particles[i+4];
                     
-                    if( y === SPEED){
+                    if( y >0 && y < SPEED){
                         bEmit = true;
                     }
 
