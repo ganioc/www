@@ -153,75 +153,62 @@
         rainbow_band:function(){
             var NFIELDS = 5; // x,y, vx, vy,age,
 
-            var MAX_PARTICLES = 11; // to decide the band number
+            var MAX_PARTICLES = 9; // to decide the band number
             
             var HEIGHT = Math.floor(ctx.canvas.height/ MAX_PARTICLES);
             HEIGHT = (HEIGHT%2 === 0)?HEIGHT:(HEIGHT -1);
             console.log('HEIGHT is:' + HEIGHT);
-            var SPEED = 2; //Math.floor(HEIGHT/SPEED_NUM);
-            var PARTICLES_LENGTH = (MAX_PARTICLES + 1) * NFIELDS;
+            //var SPEED = 2; //Math.floor(HEIGHT/SPEED_NUM);
+            var RAINBOW_SPEED = 80;
+            var RAINBOW_DELTA = 0;
+            var thresh = -HEIGHT;
+            var PARTICLES_LENGTH = (MAX_PARTICLES + 2);
 
-            var particles = new Float32Array(PARTICLES_LENGTH);
+            function Particle(){
+                var x,y,vx,vy,color;
+            }
+            var particles = [];
+            for(var i =0; i< PARTICLES_LENGTH; i++){
+                particles.push(new Particle());
+            }
             var particles_i = 0 ;
             var bEmit = true;
             
             jq('#board-setting').attr('href','#water-ripple-setting');
 
-            var Monkey = function(){
-                var x = ctx.canvas.width/2,y =0;
-                var width = 10;
-                var height = 20;
-                var size = 1;
-                var color = 'white';
-                var speed = 300;
-                var direction = 'down';
-
-                function jump(){
-                    direction = 'down';
-                    speed = -200;
-
-                };
-                function drop(){
-                    direction = 'up';
-                    speed = 300;
-
-                };
+            function Monkey(option){
+                this.x = ctx.canvas.width/2;
+                this.y = 10;
+                this.width = 10;
+                this.height = 20;
+                this.size = 1;
+                this.color = 'white';
+                this.speed = 300;
+                this.state = 'crouch';// fall, crouch, jump ... state
+                this.crouch_i = 0;
+            };
+            Monkey.prototype.update = function(td){
+                console.log('*' + this.state);
+                console.log('*' + this.x);
+                console.log('*' + this.y);
                 
-                return {
-                    update:function(td){
-                        y = y+ speed * td;
-
-                        if(direction === 'up'){
-
-                            size =(size < 2)?(size + 0.01):size;
-
-                        }
-                        else if(direction ==='down'){
-                            size = ( size > 0.2)?(size - 0.01):size;
-                        }
-
-                        if(y > ctx.canvas.height){
-                            y = 0;
-                        }
-                        else if( y > ctx.canvas.height/2){
-                            if(Math.random()> 0.5){
-                                jump();
-                            }
-                        }
-                        else if( y < -10){
-                            drop();
-
-                        }
-                    },
-                    draw:function(){
-                        ctx.fillStyle = color;
-                        ctx.fillRect(x,y,width*size,height*size);
-                    }
-
-                };
+                var y = this.y, crouch_i = this.crouch_i;
+                
+                if(this.state === 'crouch'){
+                    console.log('::' + y);
+                    y += parseInt(particles[crouch_i].vy) * td;
+                    console.log(':' + y);
+                    
+                }
+                this.y = y;
+            };
+            Monkey.prototype.draw = function(){
+                ctx.fillStyle = this.color;
+                ctx.fillRect(this.x,this.y,this.width*this.size,this.height*this.size);
+                //console.log('*' + x + ' ' + y + ' ' + width*size + ' ' + height*size);
             };
 
-            var monkey1 = new Monkey();
+            var monkey1 = new Monkey({});
 
             // to generate the color in emit
             var createColor = function(){
@@ -259,42 +246,36 @@
 
             var color = createColor();
             
-            function emit(td){
+            function emit(td,delta){
                 //console.log(angle.toString(16));
-                particles[particles_i] = 50;     //x
-                particles[particles_i + 1] = -HEIGHT;   //y
-                particles[particles_i + 2] = 0;   //vx
-                particles[particles_i + 3] = SPEED;  //vy
-                particles[particles_i + 4] = color(); //
+                particles[particles_i].x = 40;     //x
+                particles[particles_i].y = -HEIGHT + delta;
+                particles[particles_i].vx = 0;   //vx
+                particles[particles_i].vy = RAINBOW_SPEED;  //vy
+                particles[particles_i].color = color(); //
                 
-                particles_i = (particles_i + NFIELDS)%PARTICLES_LENGTH;                    
+                particles_i = (particles_i + 1)%PARTICLES_LENGTH;
             }
 
             return function(td){
-                if( bEmit === true){
-                    emit(td);
-                    bEmit= false;
-                }
-                //emit(td);
                 ctx.fillStyle = 'rgba(0,0,0,1)';
                 ctx.fillRect(0,0,ctx.canvas.width,ctx.canvas.height);
+
+                thresh += RAINBOW_SPEED * td;
+                if( thresh >= 1){
+                    //bEmit = true;
+                    emit(td, thresh);
+                    thresh = -HEIGHT;
+                    //RAINBOW_DELTA = thresh;
+                }
                 
-                for(var i=0;i < PARTICLES_LENGTH;i+= NFIELDS){
-                    var x = particles[i];
-                    var y = particles[i+1];
+                for(var i=0;i < PARTICLES_LENGTH;i++){
+                    var x = particles[i].x;
+                    var y = particles[i].y;
 
-                    var speed = SPEED;
-                    //console.log('speed is:' + speed.toString());
-                    //console.log(td);
-                    
-                    var color = particles[i+4];
-                    
-                    if( y === SPEED){
-                        bEmit = true;
-                    }
-                    //console.log('y is:' + y);
+                    var color = particles[i].color;
 
-                    if(particles[i+3]> 0){
+                    if(particles[i].vy> 0){
                         var str = color.toString(16);
                         if(str.length === 2){
                             str = '0000' + str;
@@ -306,9 +287,11 @@
                         ctx.fillStyle = '#' + str; //
                         ctx.fillRect(x, y, ctx.canvas.width - x*2, HEIGHT);
                         
-                        particles[i+1] = particles[i+1] + speed;
+                        particles[i].y = particles[i].y + RAINBOW_SPEED*td;
+                        
                     }
                 }// end of for
+
                 monkey1.update(td);
                 monkey1.draw();
 
