@@ -144,7 +144,7 @@
                     data[offset] += r;
                     data[offset +1] +=g;
                     data[offset +2] +=b;
-                 }//end of for
+                }//end of for
 
                 ctx.putImageData(imgdata, 0, 0);
             };                
@@ -177,38 +177,97 @@
             jq('#board-setting').attr('href','#water-ripple-setting');
 
             function Monkey(option){
-                this.x = ctx.canvas.width/2;
-                this.y = 10;
-                this.width = 10;
-                this.height = 20;
+                this.x = option.x||ctx.canvas.width/2;
+                this.y = option.y||0;
+                this.width = option.width||10;
+                this.height = option.height||20;
                 this.size = 1;
                 this.color = 'white';
-                this.speed = 300;
+                this.speed = option.speed||300;
+                this.xspeed = 0;
                 this.state = 'crouch';// fall, crouch, jump ... state
-                this.crouch_i = 0;
+                this.crouch_i = option.crouch_i||0;
             };
+            // Monkey.prototype.width = 10;
+            // Monkey.prototype.height = 20;
             Monkey.prototype.update = function(td){
-                console.log('*' + this.state);
-                console.log('*' + this.x);
-                console.log('*' + this.y);
-                
-                var y = this.y, crouch_i = this.crouch_i;
                 
                 if(this.state === 'crouch'){
-                    console.log('::' + y);
-                    y += parseInt(particles[crouch_i].vy) * td;
-                    console.log(':' + y);
+                    //console.log('::' + y_temp);
+                    this.y += particles[this.crouch_i].vy * td;
+                    //console.log(':' + y_temp);
+                    if( particles[this.crouch_i].y + HEIGHT >= ctx.canvas.height){
+                        this.state = 'jump';
+                        if(this.x < (ctx.canvas.width/2 - 5)){
+                            this.xspeed = 20;
+                        }
+                        else if( this.x > (ctx.canvas.width/2 + 5)){
+                            this.xpeed = -20;
+                        }
+                        else{
+                            this.xpeed = 0;
+                        }
+                    }
+                }
+                else if( this.state === 'jump'){
+                    this.y = this.y - this.speed * td;
+                    this.x = this.x + this.xspeed * td;
+
+                    var _y = this.y,
+                        _height = this.height;
+                    
+
+                    
+                    if( this.y < ctx.canvas.height/2){
+                        var _index = _.findIndex(particles,function(c){
+                            var distance = _y + _height - c.y - HEIGHT/2;
+                            //console.log('dist:' + distance);
+                            if(Math.abs(distance) < HEIGHT/4){
+                                return true;
+                            }
+                            else return false;
+                        });
+
+                        if(_index !== -1 && Math.random()>0.9){
+                            this.crouch_i = _index;
+                            this.state = 'crouch';
+                        }
+                        
+                    }
+                    else if( this.y <0){
+                        console.log('into <0');
+                        var index = _.findIndex(particles, function(c){
+                            if(c.y <=0){
+                                return true;
+                            }else{
+                                return false;
+                            }
+                        });
+                        if(index != -1){
+                            console.log('not -1');
+                            this.crouch_i = index;
+                            this.state = 'crouch';
+                        }
+                        else{
+                            console.log('is -1');
+                            this.crouch_i = 0;
+                            this.state = 'crouch';
+                        }
+                    }
                     
                 }
-                this.y = y;
+
+                // this.my = y_temp;
             };
+            
             Monkey.prototype.draw = function(){
                 ctx.fillStyle = this.color;
                 ctx.fillRect(this.x,this.y,this.width*this.size,this.height*this.size);
-                //console.log('*' + x + ' ' + y + ' ' + width*size + ' ' + height*size);
+                
             };
 
-            var monkey1 = new Monkey({});
+            var monkey1 = null;
+            //window.setTimeout();
 
             // to generate the color in emit
             var createColor = function(){
@@ -267,6 +326,17 @@
                     emit(td, thresh);
                     thresh = -HEIGHT;
                     //RAINBOW_DELTA = thresh;
+                    if(!monkey1){
+                        monkey1 = new Monkey({
+                            x:particles[0].x + Math.random()* ctx.canvas.width/2,
+                            y:particles[0].y + HEIGHT/2 -20,
+                            crouch_i:0,
+                            width:10,
+                            height:20,
+                            speed: 300
+
+                        });
+                    }
                 }
                 
                 for(var i=0;i < PARTICLES_LENGTH;i++){
@@ -283,7 +353,7 @@
                         else if(str.length === 4){
                             str = '00' + str;
                         }
-                            
+                        
                         ctx.fillStyle = '#' + str; //
                         ctx.fillRect(x, y, ctx.canvas.width - x*2, HEIGHT);
                         
@@ -291,9 +361,10 @@
                         
                     }
                 }// end of for
-
-                monkey1.update(td);
-                monkey1.draw();
+                if(monkey1){
+                    monkey1.update(td);
+                    monkey1.draw();
+                }
 
             };
         },
