@@ -151,7 +151,7 @@
         },
         
         rainbow_band:function(){
-            var NFIELDS = 5; // x,y, vx, vy,age,
+            //var NFIELDS = 5; // x,y, vx, vy,age,
 
             var MAX_PARTICLES = 9; // to decide the band number
             
@@ -164,6 +164,11 @@
             var thresh = -HEIGHT;
             var PARTICLES_LENGTH = (MAX_PARTICLES + 2);
 
+            var bReadyImage = false;
+            var imageFly = new Image();
+            imageFly.src = 'img/fly_50.png';
+            imageFly.onload = function(){ bReadyImage = true; };
+            
             function Particle(){
                 var x,y,vx,vy,color;
             }
@@ -174,7 +179,7 @@
             var particles_i = 0 ;
             var bEmit = true;
             
-            jq('#board-setting').attr('href','#water-ripple-setting');
+            jq('#board-setting').attr('href','#rainbow-band-setting');
 
             function Monkey(option){
                 this.x = option.x||ctx.canvas.width/2;
@@ -187,6 +192,7 @@
                 this.xspeed = 0;
                 this.state = 'crouch';// fall, crouch, jump ... state
                 this.crouch_i = option.crouch_i||0;
+                this.image = option.image||null;
             };
             // Monkey.prototype.width = 10;
             // Monkey.prototype.height = 20;
@@ -199,13 +205,14 @@
                     if( particles[this.crouch_i].y + HEIGHT >= ctx.canvas.height){
                         this.state = 'jump';
                         if(this.x < (ctx.canvas.width/2 - 5)){
-                            this.xspeed = 20;
+                            
+                            this.xspeed = (Math.random()>0.5)?50:20;
                         }
                         else if( this.x > (ctx.canvas.width/2 + 5)){
-                            this.xpeed = -20;
+                            this.xspeed = (Math.random()>0.5)?-50:-20;
                         }
                         else{
-                            this.xpeed = 0;
+                            this.xspeed = (Math.random()>0.6)?0:-70;
                         }
                     }
                 }
@@ -216,8 +223,6 @@
                     var _y = this.y,
                         _height = this.height;
                     
-
-                    
                     if( this.y < ctx.canvas.height/2){
                         var _index = _.findIndex(particles,function(c){
                             var distance = _y + _height - c.y - HEIGHT/2;
@@ -225,7 +230,9 @@
                             if(Math.abs(distance) < HEIGHT/4){
                                 return true;
                             }
-                            else return false;
+                            else{
+                                return false;
+                            }
                         });
 
                         if(_index !== -1 && Math.random()>0.9){
@@ -261,8 +268,9 @@
             };
             
             Monkey.prototype.draw = function(){
-                ctx.fillStyle = this.color;
-                ctx.fillRect(this.x,this.y,this.width*this.size,this.height*this.size);
+                //ctx.fillStyle = this.color;
+                //ctx.fillRect(this.x,this.y,this.width*this.size,this.height*this.size);
+                ctx.drawImage(this.image,this.x,this.y, 30,30 );
                 
             };
 
@@ -315,7 +323,7 @@
                 
                 particles_i = (particles_i + 1)%PARTICLES_LENGTH;
             }
-
+            
             return function(td){
                 ctx.fillStyle = 'rgba(0,0,0,1)';
                 ctx.fillRect(0,0,ctx.canvas.width,ctx.canvas.height);
@@ -326,14 +334,15 @@
                     emit(td, thresh);
                     thresh = -HEIGHT;
                     //RAINBOW_DELTA = thresh;
-                    if(!monkey1){
+                    if(!monkey1 && bReadyImage){
                         monkey1 = new Monkey({
                             x:particles[0].x + Math.random()* ctx.canvas.width/2,
                             y:particles[0].y + HEIGHT/2 -20,
                             crouch_i:0,
                             width:10,
                             height:20,
-                            speed: 300
+                            speed: 300,
+                            image:imageFly
 
                         });
                     }
