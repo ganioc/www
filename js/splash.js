@@ -259,7 +259,7 @@
                         
                     }
                     else if( this.y < 0){
-                        console.log('into <0');
+                        //console.log('into <0');
                         var index = _.findIndex(particles, function(c){
                             if(c.y <=0){
                                 return true;
@@ -268,18 +268,20 @@
                             }
                         });
                         if(index != -1){
-                            console.log('not -1');
+                            //console.log('not -1');
                             this.crouch_i = index;
                             this.state = 'crouch';
                         }
                         else{
-                            console.log('is -1');
+                            //console.log('is -1');
                             this.crouch_i = 0;
                             this.state = 'crouch';
                         }
                     }
                     else{
-                        console.log('It should never happen ...');
+                        ;//console.log('It should never happen ...');
+                        
+                        
                     }
                     
                 }
