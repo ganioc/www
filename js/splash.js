@@ -165,9 +165,17 @@
             var PARTICLES_LENGTH = (MAX_PARTICLES + 2);
 
             var bReadyImage = false;
+            var imageFlyStepBack = new Image();
             var imageFly = new Image();
-            imageFly.src = 'img/fly_50.png';
-            imageFly.onload = function(){ bReadyImage = true; };
+            imageFlyStepBack.src = 'img/flystepback_50.gif';
+            imageFlyStepBack.onload = function(){
+                imageFly.src = 'img/fly_50.gif';
+                console.log('imgstepback finished');
+            };
+            imageFly.onload = function(){
+                bReadyImage = true;
+                console.log('img finished');
+            };
             
             function Particle(){
                 var x,y,vx,vy,color;
@@ -193,6 +201,9 @@
                 this.state = 'crouch';// fall, crouch, jump ... state
                 this.crouch_i = option.crouch_i||0;
                 this.image = option.image||null;
+                this.imageStepBack = option.imageStepBack||null;
+                this.pace = 0;
+                this.pace_counter = 0;
             };
             // Monkey.prototype.width = 10;
             // Monkey.prototype.height = 20;
@@ -205,7 +216,6 @@
                     if( particles[this.crouch_i].y + HEIGHT >= ctx.canvas.height){
                         this.state = 'jump';
                         if(this.x < (ctx.canvas.width/2 - 5)){
-                            
                             this.xspeed = (Math.random()>0.5)?50:20;
                         }
                         else if( this.x > (ctx.canvas.width/2 + 5)){
@@ -220,10 +230,17 @@
                     this.y = this.y - this.speed * td;
                     this.x = this.x + this.xspeed * td;
 
+                    this.pace_counter += 1;
+                    if( this.pace_counter === 5){
+                        this.pace = ~this.pace;
+                        this.pace_counter = 0;
+                    }
+
+                    
                     var _y = this.y,
                         _height = this.height;
                     
-                    if( this.y < ctx.canvas.height/2){
+                    if( this.y < ctx.canvas.height/2 && this.y >=0){
                         var _index = _.findIndex(particles,function(c){
                             var distance = _y + _height - c.y - HEIGHT/2;
                             //console.log('dist:' + distance);
@@ -241,7 +258,7 @@
                         }
                         
                     }
-                    else if( this.y <0){
+                    else if( this.y < 0){
                         console.log('into <0');
                         var index = _.findIndex(particles, function(c){
                             if(c.y <=0){
@@ -261,6 +278,9 @@
                             this.state = 'crouch';
                         }
                     }
+                    else{
+                        console.log('It should never happen ...');
+                    }
                     
                 }
 
@@ -270,8 +290,13 @@
             Monkey.prototype.draw = function(){
                 //ctx.fillStyle = this.color;
                 //ctx.fillRect(this.x,this.y,this.width*this.size,this.height*this.size);
-                ctx.drawImage(this.image,this.x,this.y, 30,30 );
-                
+                    if( this.pace === 0){
+                        ctx.drawImage(this.image,this.x,this.y, 30,30 );
+                    }
+                    else{
+                        ctx.drawImage(this.imageStepBack,this.x,this.y,30,30);
+                    }
+
             };
 
             var monkey1 = null;
@@ -342,8 +367,8 @@
                             width:10,
                             height:20,
                             speed: 300,
-                            image:imageFly
-
+                            image:imageFly,
+                            imageStepBack:imageFlyStepBack
                         });
                     }
                 }
