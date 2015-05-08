@@ -70,8 +70,11 @@
             var r = 120;
             var g = 55;
             var b = 10;
-            var PARTICLE_NUM = 250;
+            var PARTICLE_NUM = 200;
             var emitX = 0, emitY = 0;
+            var counterFPS = 0;
+            var counter = 0;
+            var strFPS= '';
             emitX = ctx.canvas.width/2;
             emitY = ctx.canvas.height/3;
 
@@ -147,6 +150,19 @@
                 }//end of for
 
                 ctx.putImageData(imgdata, 0, 0);
+                ctx.fillStyle = 'white';
+                ctx.font ='20px serif';
+
+                counter +=1;
+                counterFPS +=td;
+                
+                if( counter === 50){
+                    strFPS = (counterFPS/ counter).toPrecision(3);
+                    counter = 0;
+                    counterFPS = 0;
+                 }
+
+                ctx.fillText( 'FPS:'+strFPS ,20,20);
             };                
         },
         
@@ -164,6 +180,10 @@
             var thresh = -HEIGHT;
             var PARTICLES_LENGTH = (MAX_PARTICLES + 2);
 
+            var counterFPS = 0;
+            var counter = 0;
+            var strFPS= '';
+            
             var bReadyImage = false;
             var imageFlyStepBack = new Image();
             var imageFly = new Image();
@@ -401,6 +421,20 @@
                     monkey1.update(td);
                     monkey1.draw();
                 }
+
+                ctx.fillStyle = 'white';
+                ctx.font ='20px serif';
+
+                counter +=1;
+                counterFPS +=td;
+                
+                if( counter === 50){
+                    strFPS = (counterFPS/ counter).toPrecision(3);
+                    counter = 0;
+                    counterFPS = 0;
+                 }
+
+                ctx.fillText( 'FPS:'+strFPS ,20,20);
 
             };
         },
